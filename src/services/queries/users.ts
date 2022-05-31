@@ -6,8 +6,8 @@ import { genId } from "$services/utils";
 export const getUserByUsername = async (username: string) => {};
 
 export const getUserById = async (id: string) => {
-    const user = client.HGETALL(usersKey(id))
-    return(deserialize(user))
+    const user = await client.HGETALL(usersKey(id))
+    return(deserialize(id, user))
 };
 
 export const createUser = async (attrs: CreateUserDto) => {
