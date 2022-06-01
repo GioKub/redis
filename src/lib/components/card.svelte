@@ -13,6 +13,11 @@
 	}
 
 	export let item: ItemSummary;
+
+	$: endingAt =
+		typeof item.endingAt === 'number'
+			? DateTime.fromMillis(item.endingAt).toRelative()
+			: item.endingAt.toRelative();
 </script>
 
 <div class="w-80 flex justify-center items-center">
@@ -27,7 +32,7 @@
 					</p>
 				</a>
 				<p class="uppercase text-sm text-gray-400">
-					Ends {DateTime.fromMillis(item.endingAt).toRelative()}
+					Ends {endingAt}
 				</p>
 				{#if showViews}
 					<p class="uppercase text-sm text-gray-400">

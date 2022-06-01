@@ -16,7 +16,8 @@
 	export let item: ItemSummary;
 
 	function status(item: ItemSummary) {
-		const ended = DateTime.fromMillis(item.endingAt) < DateTime.now();
+		let t = typeof item.endingAt === 'object' ? (item.endingAt as any).toMillis() : item.endingAt;
+		const ended = DateTime.fromMillis(t) < DateTime.now();
 		const sold = item.price > 0;
 
 		if (ended && sold) {

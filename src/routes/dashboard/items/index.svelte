@@ -47,7 +47,8 @@
 	};
 
 	function timeLeft(t: number) {
-		const endingAt = DateTime.fromMillis(t);
+		let _t = typeof t === 'object' ? (t as any).toMillis() : t;
+		const endingAt = DateTime.fromMillis(_t);
 
 		if (endingAt < DateTime.now()) {
 			return '-';

@@ -1,4 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
+import type { Item } from '$services/types';
+import { DateTime } from 'luxon';
 import { createBid } from '$services/queries/bids';
 import { getItem } from '$services/queries/items/items';
 
@@ -10,7 +12,7 @@ export const post: RequestHandler<any> = async ({ request, params, locals }) => 
 		};
 	}
 
-	const item = await getItem(params.id);
+	const item = (await getItem(params.id)) as any as Item;
 
 	if (!item) {
 		return {
@@ -25,7 +27,7 @@ export const post: RequestHandler<any> = async ({ request, params, locals }) => 
 		itemId: params.id,
 		userId: locals.session.userId,
 		amount: body.amount,
-		createdAt: Date.now(),
+		createdAt: DateTime.now(),
 		itemEndingAt: item.endingAt
 	});
 

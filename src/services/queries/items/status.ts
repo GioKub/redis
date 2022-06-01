@@ -8,7 +8,7 @@ export enum ItemStatus {
 }
 
 export const getStatus = (item: Item) => {
-	const ended = DateTime.fromMillis(item.endingAt) < DateTime.now();
+	const ended = item.endingAt < DateTime.now();
 
 	if (ended && item.price > 0) {
 		return ItemStatus.Sold;

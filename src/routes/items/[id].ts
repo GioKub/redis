@@ -28,6 +28,16 @@ export const get: RequestHandler<Params, any> = async ({ params, locals }) => {
 	const userHasHighBid = item.highestBidUserId === locals.session.userId;
 
 	return {
-		body: { item, userLikes, userHasHighBid, history, similarItems }
+		body: {
+			item: {
+				...item,
+				endingAt: item.endingAt.toMillis(),
+				createdAt: item.createdAt.toMillis()
+			},
+			userLikes,
+			userHasHighBid,
+			history,
+			similarItems
+		}
 	};
 };
