@@ -26,7 +26,7 @@ export interface User {
 	password: string;
 }
 
-export interface CreateUserDto {
+export interface CreateUserAttrs {
 	username: string;
 	password: string;
 }
