@@ -14,14 +14,13 @@ export const getUserById = async (id: string) => {
 export const createUser = async (attrs: CreateUserAttrs) => {
 	const id = genId();
 
-	const exists = await client.SISMEMBER(usernamesUniqueKey(), attrs.username);
-
-	if(exists){
-		throw new Error("Username is already taken")
+	const exists = await client.sIsMember(usernamesUniqueKey(), attrs.username);
+	if (exists) {
+		throw new Error('Username is taken');
 	}
 
 	await client.hSet(usersKey(id), serialize(attrs));
-	await client.SADD(usernamesUniqueKey(), attrs.username)
+	await client.sAdd(usernamesUniqueKey(), attrs.username);
 
 	return id;
 };

@@ -1,16 +1,24 @@
-import { client } from "$services/redis";
-import { userLikesKey } from "$services/keys";
+import { client } from '$services/redis';
+import { userLikesKey, itemsKey } from '$services/keys';
 
 export const userLikesItem = async (itemId: string, userId: string) => {};
 
 export const likedItems = async (userId: string) => {};
 
 export const likeItem = async (itemId: string, userId: string) => {
-    await client.SADD(userLikesKey(userId), itemId)
+	const inserted = await client.sAdd(userLikesKey(userId), itemId);
+
+	if(inserted){
+		return client.HINCRBY(itemsKey(itemId), 'likes', 1)
+	}
 };
 
 export const unlikeItem = async (itemId: string, userId: string) => {
-    await client.SREM(userLikesKey(userId), itemId)
+	const removed = await client.sRem(userLikesKey(userId), itemId);
+
+	if(removed){
+		return client.HINCRBY(itemsKey(itemId), 'likes', -1)
+	}
 };
 
 export const commonLikedItems = async (userOneId: string, userTwoId: string) => {};
