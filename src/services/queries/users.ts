@@ -3,7 +3,19 @@ import { genId } from '$services/utils';
 import { client } from '$services/redis';
 import { usersKey, usernamesUniqueKey, usernameKey } from '$services/keys';
 
-export const getUserByUsername = async (username: string) => {};
+export const getUserByUsername = async (username: string) => {
+	const decimalID = await client.ZSCORE(usernameKey(), username)
+
+	if(!decimalID){
+		throw new Error("user with such username doesn't exist")
+	}
+
+	const id = decimalID.toString(16)
+
+	const user = await client.hGetAll(usersKey(id))
+
+	return deserialize(id, user)
+};
 
 export const getUserById = async (id: string) => {
 	const user = await client.hGetAll(usersKey(id));
