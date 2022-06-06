@@ -1,20 +1,25 @@
 import type { CreateUserAttrs } from '$services/types';
 import { genId } from '$services/utils';
 import { client } from '$services/redis';
-import { usersKey, usernamesUniqueKey, usernameKey } from '$services/keys';
+import { usersKey, usernamesUniqueKey, usernamesKey } from '$services/keys';
 
 export const getUserByUsername = async (username: string) => {
-	const decimalID = await client.ZSCORE(usernameKey(), username)
+	// Use the username argument to look up the persons User ID
+	// with the usernames sorted set
+	const decimalId = await client.zScore(usernamesKey(), username);
 
-	if(!decimalID){
-		throw new Error("user with such username doesn't exist")
+	// make sure we actually got an ID from the lookup
+	if (!decimalId) {
+		throw new Error('User does not exist');
 	}
 
-	const id = decimalID.toString(16)
+	// Take the id and convert it back to hex
+	const id = decimalId.toString(16);
+	// Use the id to look up the user's hash
+	const user = await client.hGetAll(usersKey(id));
 
-	const user = await client.hGetAll(usersKey(id))
-
-	return deserialize(id, user)
+	// deserialize and return the hash
+	return deserialize(id, user);
 };
 
 export const getUserById = async (id: string) => {
@@ -33,10 +38,10 @@ export const createUser = async (attrs: CreateUserAttrs) => {
 
 	await client.hSet(usersKey(id), serialize(attrs));
 	await client.sAdd(usernamesUniqueKey(), attrs.username);
-	await client.zAdd(usernameKey(),{
+	await client.zAdd(usernamesKey(), {
 		value: attrs.username,
 		score: parseInt(id, 16)
-	})
+	});
 
 	return id;
 };
