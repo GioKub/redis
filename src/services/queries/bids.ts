@@ -5,7 +5,7 @@ import { getItem } from './items';
 import { DateTime } from 'luxon';
 
 export const createBid = async (attrs: CreateBidAttrs) => {
-	return withLock(attrs.userId, async () => {
+	return withLock(attrs.userId, async (lockedClient: typeof client) => {
 		const item = await getItem(attrs.itemId);
 
 		if (!item) {
@@ -20,15 +20,15 @@ export const createBid = async (attrs: CreateBidAttrs) => {
 		}
 
 		const serialized = serializeHistory(attrs.amount, attrs.createdAt.toMillis());
-		
+
 		return	Promise.all([
-				client.rPush(bidHistoryKey(attrs.itemId), serialized),
-				client.HSET(itemsKey(item.id), {
+				lockedClient.rPush(bidHistoryKey(attrs.itemId), serialized),
+				lockedClient.HSET(itemsKey(item.id), {
 					bids: item.bids + 1,
 					price: attrs.amount,
 					highestBidUserId: attrs.userId
 				}),
-				client.ZADD(itemsByPriceKey(), {
+				lockedClient.ZADD(itemsByPriceKey(), {
 					value: item.id,
 					score: attrs.amount
 				})
